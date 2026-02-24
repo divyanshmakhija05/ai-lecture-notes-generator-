@@ -9,9 +9,7 @@ import uuid
 
 st.title("🎓 Lecture Voice-to-Notes Generator")
 
-# -------------------------------
-# Load models once
-# -------------------------------
+# Loading Models
 @st.cache_resource
 def load_models():
     whisper_model = whisper.load_model("tiny")
@@ -31,17 +29,14 @@ def load_models():
 
 whisper_model, summarizer, generator = load_models()
 
-# -------------------------------
-# Clean transcript
-# -------------------------------
+
 def clean_text(text):
     text = re.sub(r"\b(um|uh|you know)\b", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# -------------------------------
-# Cleanup old audio files
-# -------------------------------
+
+
 def cleanup_old_audio():
     for file in os.listdir():
         if file.endswith((".mp3", ".webm", ".m4a", ".wav")):
@@ -50,9 +45,10 @@ def cleanup_old_audio():
             except:
                 pass
 
-# -------------------------------
+
 # Download YouTube audio
-# -------------------------------
+
+
 def download_audio(url):
     unique_id = uuid.uuid4().hex
 
@@ -69,9 +65,8 @@ def download_audio(url):
         if file.startswith(unique_id):
             return file
 
-# -------------------------------
 # Split text into chunks
-# -------------------------------
+
 def split_into_chunks(text, max_words=350):
     words = text.split()
     chunks = []
@@ -80,15 +75,13 @@ def split_into_chunks(text, max_words=350):
         chunks.append(chunk)
     return chunks
 
-# -------------------------------
-# Session state
-# -------------------------------
+
 if "last_url" not in st.session_state:
     st.session_state.last_url = ""
 
-# -------------------------------
-# Inputs
-# -------------------------------
+
+#Inputs
+
 uploaded_file = st.file_uploader("Upload Lecture Audio", type=["mp3", "wav", "m4a"])
 youtube_url = st.text_input("Or Paste YouTube Video Link")
 
@@ -146,17 +139,12 @@ def generate_pdf(topic_notes, overall_summary, questions):
     doc.build(content)
     return file_path
 
-# -------------------------------
-# Initialize variables (IMPORTANT)
-# -------------------------------
+#Variables
 topic_notes = []
 combined_summary = ""
 all_questions = []
 
 
-# -------------------------------
-# Process Audio
-# -------------------------------
 if audio_path:
     st.info("Processing audio... Please wait ⏳")
 
@@ -168,9 +156,9 @@ if audio_path:
     st.subheader("📝 Full Transcript")
     st.write(cleaned_text)
 
-    # -------------------------------
-    # Topic-wise summaries
-    # -------------------------------
+    
+    
+    
     st.subheader("📘 Topic-wise Notes")
 
     chunks = split_into_chunks(cleaned_text)
@@ -186,20 +174,15 @@ if audio_path:
         topic_notes.append(summary[0]["summary_text"])
         st.markdown(f"**Topic {i+1}:** {summary[0]['summary_text']}")
 
-    # -------------------------------
-    # Overall Summary
-    # -------------------------------
+    
+    
+    
     combined_summary = " ".join(topic_notes)
 
     st.subheader("📕 Overall Summary")
     st.write(combined_summary)
 
-    # -------------------------------
-    # Quiz Generation
-    # -------------------------------
-    # -------------------------------
-    # Improved Quiz Generation (FIXED)
-    # -------------------------------
+    
     st.subheader("❓ Quiz Questions (Topic-wise)")
 
     all_questions = []
@@ -224,7 +207,7 @@ if audio_path:
 
         raw_output = quiz[0]["generated_text"]
 
-        # Extract proper questions
+        # Extract proper que
         lines = raw_output.split("\n")
         for line in lines:
             line = line.strip()
@@ -232,16 +215,16 @@ if audio_path:
                 all_questions.append(f"{question_number}. {line}")
                 question_number += 1
 
-    # Display questions
+    # Display que
     if all_questions:
-        for q in all_questions[:6]:  # limit to 6 good questions
+        for q in all_questions[:6]:  # limit to 6 
             st.write(q)
     else:
         st.warning("Could not generate quality questions. Try a longer lecture.")
         
-# -------------------------------
+
 # PDF Download
-# -------------------------------
+
 pdf_path = generate_pdf(
     topic_notes=topic_notes,
     overall_summary=combined_summary,
