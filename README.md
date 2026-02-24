@@ -36,3 +36,4 @@ pip install -r requirements.txt
 
 streamlit run app.py
 
+##Streamlit Link  **https://ai-lecture-notes-generator-git-d7jxqbawhrea6wsgz8nd8x.streamlit.app/**
